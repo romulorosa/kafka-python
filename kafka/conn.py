@@ -954,7 +954,7 @@ class BrokerConnection(object):
                 for response, future in self.recv():
                     future.success(response)
                 if not requests_is_done(f, mr):
-                    # only select the socket if in our previously attempt to retrieve
+                    # only select the socket if the previously attempt to retrieve
                     # responses has failed
                     selector.select(1)
             selector.close()
