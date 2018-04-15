@@ -948,10 +948,15 @@ class BrokerConnection(object):
 
             selector = self.config['selector']()
             selector.register(self._sock, selectors.EVENT_READ)
-            while not (f.is_done and mr.is_done):
+            requests_is_done = lambda req_f, req_mr: req_f.is_done and req_mr.is_done
+
+            while not requests_is_done(f, mr):
                 for response, future in self.recv():
                     future.success(response)
-                selector.select(1)
+                if not requests_is_done(f, mr):
+                    # only select the socket if in our previously attempt to retrieve
+                    # responses has failed
+                    selector.select(1)
             selector.close()
 
             if f.succeeded():
